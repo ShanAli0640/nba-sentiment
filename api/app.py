@@ -6,7 +6,9 @@ import asyncio
 from twikit import Client
 from transformers import pipeline
 from collections import Counter
- 
+from dotenv import load_dotenv
+load_dotenv()
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -31,15 +33,11 @@ client = Client('en-US')
 
 @app.on_event("startup")
 async def startup_event():
-    USERNAME = 'okayburna'
-    EMAIL = 'ccurrycollegemail@gmail.com'
-    PASSWORD = 'Stephcurry101?'
-
     logger.info("Logging into Twitter...")
     await client.login(
-        auth_info_1=USERNAME,
-        auth_info_2=EMAIL,
-        password=PASSWORD,
+        auth_info_1=os.getenv('USERNAME'),
+        auth_info_2=os.getenv('EMAIL'),
+        password=os.getenv('PASSWORD'),
         cookies_file='cookies.json'
     )
     logger.info("Logged in successfully.")
