@@ -7,6 +7,10 @@ from twikit import Client
 from transformers import pipeline
 from collections import Counter
 from dotenv import load_dotenv
+from datetime import datetime
+import firebase_admin
+from firebase_admin import credentials, firestore
+
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
@@ -27,9 +31,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Initialize client
 client = Client('en-US')
+
+# Path to the service account key JSON file
+cred = credentials.Certificate("../firebase_sa_key.json")
+firebase_admin.initialize_app(cred)
+
+db = firestore.client()
 
 @app.on_event("startup")
 async def startup_event():
@@ -69,7 +78,17 @@ async def get_player_scores(player: str):
 
     score = sum([x['score'] for x in sentiments_list]) / len(sentiments_list)
     labels = [x['label'] for x in sentiments_list]
-    return {'label': max(set(labels), key=labels.count), 'confidence': score}
+    final_label = max(set(labels), key=labels.count)
+
+    doc_ref = db.collection("player_scores").document(player + '_' + datetime.utcnow().isoformat())
+    doc_ref.set({
+        "player": player,
+        "label": final_label,
+        "confidence": score,
+        "timestamp": datetime.utcnow().isoformat()
+    })
+
+    return {'label': final_label, 'confidence': score}
 
 if __name__ == "__main__":
     import uvicorn
