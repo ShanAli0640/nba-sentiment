@@ -1,0 +1,5 @@
+transformers==4.51.0
+accelerate
+twikit
+torch==2.1.2
+firebase_admin
