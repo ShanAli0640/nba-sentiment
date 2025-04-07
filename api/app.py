@@ -10,8 +10,11 @@ from dotenv import load_dotenv
 from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, firestore
+from typing import List
+from pydantic import BaseModel
 
 load_dotenv()
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -51,6 +54,13 @@ async def startup_event():
     )
     logger.info("Logged in successfully.")
 
+    
+temp_db = []
+
+class Player(BaseModel):
+    name: str
+    description: str
+
 @app.get("/")
 async def get_projects():
     """ tesdt """
@@ -89,6 +99,28 @@ async def get_player_scores(player: str):
     })
 
     return {'label': final_label, 'confidence': score}
+
+@app.post("/addPlayer")
+async def add_player(player: Player):
+    """ add a player """
+    player_dict = player.dict()
+    temp_db.append(player_dict)
+    print(f"{temp_db}") 
+    return player
+
+@app.get("/players")
+async def get_Players():
+    """ get all players from db """
+    return temp_db
+
+@app.get("/player/{player_name}", response_model=Player)
+async def get_player(player_name: str):
+    """ get data for player """
+    print(player_name)
+    for p in temp_db:
+        if p["name"] == player_name:
+            return p
+    return None
 
 if __name__ == "__main__":
     import uvicorn
