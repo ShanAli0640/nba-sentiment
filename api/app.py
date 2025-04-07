@@ -1,7 +1,6 @@
-from fastapi import FastAPI, HTTPException, Depends, Security
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from typing import List, Optional, Dict, Any
+import logging
 import os
 
 logging.basicConfig(level=logging.INFO)
