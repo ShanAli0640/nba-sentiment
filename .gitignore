@@ -1,2 +1,3 @@
 api/.*
 web/.*
+firebase_sa_key.json
